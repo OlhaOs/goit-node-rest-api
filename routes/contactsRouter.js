@@ -6,7 +6,6 @@ import {
   createContact,
   updateContact,
 } from "../controllers/contactsControllers.js";
-
 import validateBody from "../helpers/validateBody.js";
 import { updateContactSchema, createContactSchema } from "../schemas/contactsSchemas.js";
 

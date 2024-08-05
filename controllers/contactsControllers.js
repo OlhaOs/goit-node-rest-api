@@ -8,7 +8,6 @@ import {
 
 import HttpError from '../helpers/HttpError.js';
 
-
 export const getAllContacts = async (req, res, next) => {
   try {
     const result = await listContacts();
@@ -46,22 +45,27 @@ export const deleteContact = async (req, res, next) => {
   }
 };
 
-export const createContact = async (req, res) => {
+export const createContact = async (req, res, next) => {
 
+  try {
     const result = await addContact(req.body);
     res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
 
 };
 
-export const updateContact = async (req, res) => {
-
-
+export const updateContact = async (req, res, next) => {
+  try {
     const { id } = req.params;
     const result = await updateById(id, req.body);
 
     if (!result) {
-      throw HttpError(404, `Contact with id=${id} not found`);
+      throw HttpError(404);
     }
     res.json(result);
-
+  } catch (error) {
+    next(error);
+  }
 };
