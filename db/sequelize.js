@@ -1,16 +1,26 @@
 import { Sequelize } from 'sequelize';
 
+const {
+  DATABASE_DIALECT,
+  DATABASE_USER,
+  DATABASE_NAME,
+  DATABASE_PASSWORD,
+  DATABASE_HOST,
+  DATABASE_PORT,
+} = process.env;
 
-const sequelize = new Sequelize({
-  dialect: 'postgres',
-  username: 'olha',
-  database: 'db_contacts_8mv0',
-  password: '5PReaJ40QItIdm3f1AjrrNy6YTCt00hR',
-  host: 'dpg-cqoa2gdds78s73btb4e0-a.frankfurt-postgres.render.com',
-  port: '5432',
+export const databaseConfig = {
+  dialect: DATABASE_DIALECT,
+  username: DATABASE_USER,
+  database: DATABASE_NAME,
+  password: DATABASE_PASSWORD,
+  host: DATABASE_HOST,
+  port: DATABASE_PORT,
   dialectOptions: {
     ssl: true,
   },
-});
+};
+
+const sequelize = new Sequelize(databaseConfig);
 
 export default sequelize;
