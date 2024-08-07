@@ -4,10 +4,15 @@ export const listContacts = () => User.findAll();
 
 export const getContactById = id => User.findByPk(id);
 
-export const removeContact = id =>
-  User.destroy({
-    where: { id },
-  });
+export const removeContact = async id => {
+  const contact =await User.findByPk(id);
+  if (!contact) {
+    return null;
+  }
+
+  await User.destroy({ where: { id } });
+  return contact;
+};
 
 export const addContact = data => User.create(data);
 
