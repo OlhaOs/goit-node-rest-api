@@ -1,23 +1,23 @@
-import User from '../db/models/Contact.js';
+import Contact from '../db/models/Contact.js';
 
-export const listContacts = () => User.findAll();
+export const listContacts = () => Contact.findAll();
 
-export const getContactById = id => User.findByPk(id);
+export const getContactById = id => Contact.findByPk(id);
 
 export const removeContact = async id => {
-  const contact =await User.findByPk(id);
+  const contact =await Contact.findByPk(id);
   if (!contact) {
     return null;
   }
 
-  await User.destroy({ where: { id } });
+  await Contact.destroy({ where: { id } });
   return contact;
 };
 
-export const addContact = data => User.create(data);
+export const addContact = data => Contact.create(data);
 
 export const updateById = async (id, data) => {
-  const [_, [updatedContact]] = await User.update(data, {
+  const [_, [updatedContact]] = await Contact.update(data, {
     where: { id },
     returning: true,
   });
@@ -30,7 +30,7 @@ export const updateById = async (id, data) => {
 };
 
 export const updateStatusContact = async (id, { favorite }) => {
-  const [updated] = await User.update(
+  const [updated] = await Contact.update(
     { favorite },
     {
       where: { id },
@@ -38,7 +38,7 @@ export const updateStatusContact = async (id, { favorite }) => {
     }
   );
   if (updated) {
-    return User.findByPk(id);
+    return Contact.findByPk(id);
   }
   return null;
 };
