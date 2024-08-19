@@ -1,9 +1,9 @@
 import {
   listContacts,
-  getContactById,
+  getContact,
   removeContact,
   addContact,
-  updateById,
+  updateContactQuery,
   updateStatusContact,
 } from '../services/contactsServices.js';
 
@@ -11,14 +11,16 @@ import ctrlWrapper from '../helpers/ctrlWrapper.js';
 
 import HttpError from '../helpers/HttpError.js';
 
-const getAllContacts = async (_, res) => {
-  const result = await listContacts();
+const getAllContacts = async (req, res) => {
+  const { id: owner } = req.user;
+  const result = await listContacts({ owner });
   res.json(result);
 };
 
 const getOneContact = async (req, res) => {
   const { id } = req.params;
-  const result = await getContactById(id);
+  const { id: owner } = req.user;
+  const result = await getContact({id, owner});
 
   if (!result) {
     throw HttpError(404, `Contact with id=${id} not found`);
@@ -28,7 +30,8 @@ const getOneContact = async (req, res) => {
 
 const deleteContact = async (req, res) => {
   const { id } = req.params;
-  const result = await removeContact(id);
+  const { id: owner } = req.user;
+  const result = await removeContact({id, owner});
 
   if (!result) {
     throw HttpError(404, `Contact with id=${id} not found`);
@@ -37,13 +40,18 @@ const deleteContact = async (req, res) => {
 };
 
 const createContact = async (req, res) => {
-  const result = await addContact(req.body);
+
+  const { id: owner } = req.user;
+
+  const result = await addContact({ ...req.body, owner });
+
   res.status(201).json(result);
 };
 
 const updateContact = async (req, res) => {
   const { id } = req.params;
-  const result = await updateById(id, req.body);
+  const { id: owner } = req.user;
+  const result = await updateContactQuery({id, owner}, req.body);
 
   if (!result) {
     throw HttpError(404);

@@ -19,3 +19,16 @@ export const signup = async data => {
     }
   }
 };
+
+
+export const updateUser = async (query, data) => {
+  const user = await findUser(query);
+  console.log("user", query.id)
+  if(!user) {
+      return null;
+  }
+  return user.update(data, {
+      returning: true,
+  });
+}
+
