@@ -1,6 +1,14 @@
 import Contact from '../db/models/Contact.js';
 
-export const listContacts = (query = {}) => Contact.findAll({ where: query });
+export const listContacts = (query = {}, { page = 1, limit = 10 }) => {
+  const normalizedLimit = Number(limit);
+  const offset = (Number(page) - 1) * normalizedLimit;
+  return Contact.findAll({
+    where: query,
+    offset,
+    limit: normalizedLimit,
+  });
+};
 
 export const getContact = query => Contact.findOne({ where: query });
 
