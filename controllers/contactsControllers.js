@@ -59,6 +59,7 @@ const updateContact = async (req, res) => {
   res.json(result);
 };
 
+
 const updateFavoriteStatus = async (req, res) => {
   const { id } = req.params;
   const { favorite } = req.body;
