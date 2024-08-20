@@ -1,19 +1,30 @@
 import * as authServices from '../services/authServices.js';
+import * as fs from 'node:fs/promises';
+import path from 'node:path';
 import { listContacts } from '../services/contactsServices.js';
 
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import gravatar from 'gravatar';
 
 import ctrlWrapper from '../helpers/ctrlWrapper.js';
 import HttpError from '../helpers/HttpError.js';
 
 const { JWT_SECRET } = process.env;
+const avatarPath = path.resolve('public', 'avatars');
 
 const signup = async (req, res) => {
-  const newUser = await authServices.signup(req.body);
+  const { email } = req.body;
+  const avatarURL = gravatar.url(
+    email,
+    { s: '200', r: 'pg', d: 'retro' },
+    true
+  );
+
+  const newUser = await authServices.signup({ ...req.body, avatarURL });
 
   res.status(201).json({
-    user: { email: newUser.email, subscription: newUser.subscription },
+    user: newUser,
   });
 };
 
@@ -53,7 +64,7 @@ const getCurrent = async (req, res) => {
   res.json({
     email,
     subscription,
-    contacts
+    contacts,
   });
 };
 
@@ -64,9 +75,27 @@ const signout = async (req, res) => {
   res.status(204).send();
 };
 
+const avatarUpdate = async (req, res) => {
+  const { path: oldpath, filename } = req.file;
+  const newPath = path.join(avatarPath, filename);
+
+  await fs.rename(oldpath, newPath);
+
+  const avatarURL = path.join('avatars', filename);
+  const updateUser = await authServices.updateUser(
+    { id: req.user.id },
+    { avatarURL }
+  );
+
+  res.status(200).json({
+    avatarURL: updateUser.avatarURL,
+  });
+};
+
 export default {
   signup: ctrlWrapper(signup),
   signin: ctrlWrapper(signin),
   getCurrent: ctrlWrapper(getCurrent),
+  avatarUpdate: ctrlWrapper(avatarUpdate),
   signout,
 };

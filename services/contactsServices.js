@@ -1,6 +1,8 @@
 import Contact from '../db/models/Contact.js';
 
-export const listContacts = (query = {}, { page = 1, limit = 10 }) => {
+
+export const listContacts = (query = {}, pagination = {}) => {
+  const { page = 1, limit = 2 } = pagination;
   const normalizedLimit = Number(limit);
   const offset = (Number(page) - 1) * normalizedLimit;
   return Contact.findAll({
@@ -25,18 +27,16 @@ export const removeContact = async query => {
 export const addContact = data => Contact.create(data);
 
 export const updateContactQuery = async (query, data) => {
-  const [_, [updatedContact]] = await Contact.update(data, {
-    where: { query },
-    returning: true,
-  });
+  const updatedContact = await getContact(query);
 
   if (!updatedContact) {
     return null;
   }
 
-  return updatedContact;
+  return updatedContact.update(data, {
+    returning: true,
+  });
 };
-
 export const updateStatusContact = async (id, { favorite }) => {
   const [updated] = await Contact.update(
     { favorite },

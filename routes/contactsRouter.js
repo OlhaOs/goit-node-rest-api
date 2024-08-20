@@ -18,12 +18,13 @@ import {
 } from '../schemas/contactsSchemas.js';
 import authenticate from '../middleware/authenticate.js';
 
+
+
 const createContactMiddleware = validateBody(createContactSchema);
 const updateContactMiddleware = validateBody(updateContactSchema);
 const updateStatusMiddleware = validateBody(updateFavoritesSchema);
 
 const contactsRouter = express.Router();
-
 
 contactsRouter.use(authenticate);
 
@@ -33,7 +34,12 @@ contactsRouter.get('/:id', getOneContact);
 
 contactsRouter.delete('/:id', deleteContact);
 
-contactsRouter.post('/', createContactMiddleware, createContact);
+contactsRouter.post(
+  '/',
+
+  createContactMiddleware,
+  createContact
+);
 
 contactsRouter.put('/:id', updateContactMiddleware, updateContact);
 
