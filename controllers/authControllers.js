@@ -9,6 +9,7 @@ import gravatar from 'gravatar';
 
 import ctrlWrapper from '../helpers/ctrlWrapper.js';
 import HttpError from '../helpers/HttpError.js';
+import { subscribe } from 'node:diagnostics_channel';
 
 const { JWT_SECRET } = process.env;
 const avatarPath = path.resolve('public', 'avatars');
@@ -23,8 +24,15 @@ const signup = async (req, res) => {
 
   const newUser = await authServices.signup({ ...req.body, avatarURL });
 
+  const { subscription,  id  } = newUser;
+
   res.status(201).json({
-    user: newUser,
+    user: {
+      subscription,
+      email,
+      id,
+      avatarURL,
+    },
   });
 };
 
