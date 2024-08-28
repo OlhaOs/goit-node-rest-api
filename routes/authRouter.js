@@ -6,9 +6,10 @@ import authenticate from '../middleware/authenticate.js';
 
 import validateBody from '../helpers/validateBody.js';
 
-import { authSignupSchemas } from '../schemas/authSchemas.js';
+import { authSignupSchemas, authEmailSchema } from '../schemas/authSchemas.js';
 
 const signupMiddleware = validateBody(authSignupSchemas);
+const verifyEmailMiddleware = validateBody(authEmailSchema);
 
 const authRouter = Router();
 
@@ -19,6 +20,8 @@ authRouter.post(
   authControllers.signup
 );
 
+authRouter.get("/verify/:verificationToken", authControllers.verify);
+authRouter.post("/verify", verifyEmailMiddleware, authControllers.resendVerify);
 authRouter.post('/login', signupMiddleware, authControllers.signin);
 authRouter.post('/logout', authenticate, authControllers.signout);
 authRouter.get('/current', authenticate, authControllers.getCurrent);

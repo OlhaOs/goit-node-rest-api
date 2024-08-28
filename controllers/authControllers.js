@@ -9,7 +9,6 @@ import gravatar from 'gravatar';
 
 import ctrlWrapper from '../helpers/ctrlWrapper.js';
 import HttpError from '../helpers/HttpError.js';
-import { subscribe } from 'node:diagnostics_channel';
 
 const { JWT_SECRET } = process.env;
 const avatarPath = path.resolve('public', 'avatars');
@@ -24,16 +23,47 @@ const signup = async (req, res) => {
 
   const newUser = await authServices.signup({ ...req.body, avatarURL });
 
-  const { subscription,  id  } = newUser;
+  const { subscription, id } = newUser;
 
   res.status(201).json({
     user: {
+      id,
       subscription,
       email,
-      id,
       avatarURL,
     },
   });
+};
+const verify = async (req, res) => {
+  const { verificationToken } = req.params;
+
+  const user = await authServices.findUser({ verificationToken });
+  if (!user) {
+    throw HttpError(404, 'Not found');
+  }
+  await authServices.updateUser(
+    { verificationToken },
+    { verify: true, verificationToken: null }
+  );
+
+  res.json({ message: 'Verification successful' });
+};
+
+const resendVerify = async (req, res) => {
+  const { email } = req.body;
+  const user = await authServices.findUser({ email });
+
+  if (!user) {
+    throw HttpError(404, 'Email not found');
+  }
+
+  if (user.verify) {
+    throw HttpError(400, 'Verification has already been passed');
+  }
+
+  await authServices.sendVerifyEmail(user.email, user.verificationToken);
+
+  res.json({ message: 'Verification email sent' });
 };
 
 const signin = async (req, res) => {
@@ -44,7 +74,9 @@ const signin = async (req, res) => {
   if (!user) {
     throw HttpError(401, 'Email or password is wrong');
   }
-
+  if (!user.verify) {
+    throw HttpError(401, 'User not found');
+  }
   const passwordCompare = await bcrypt.compare(password, user.password);
 
   if (!passwordCompare) {
@@ -102,6 +134,8 @@ const avatarUpdate = async (req, res) => {
 
 export default {
   signup: ctrlWrapper(signup),
+  verify: ctrlWrapper(verify),
+  resendVerify: ctrlWrapper(resendVerify),
   signin: ctrlWrapper(signin),
   getCurrent: ctrlWrapper(getCurrent),
   avatarUpdate: ctrlWrapper(avatarUpdate),
