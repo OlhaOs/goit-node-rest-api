@@ -75,7 +75,7 @@ const signin = async (req, res) => {
     throw HttpError(401, 'Email or password is wrong');
   }
   if (!user.verify) {
-    throw HttpError(401, 'User not found');
+    throw HttpError(404, 'User not found');
   }
   const passwordCompare = await bcrypt.compare(password, user.password);
 
